@@ -71,6 +71,8 @@ class QuestionBrief(BaseModel):
     options: Optional[Dict[str, str]] = None
     score: int
     image_url: Optional[str] = None
+    answer: Optional[str] = None  # 练习模式下返回答案
+    analysis: Optional[str] = None  # 练习模式下返回解析
     
     class Config:
         from_attributes = True

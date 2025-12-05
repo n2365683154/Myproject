@@ -209,7 +209,10 @@ async def start_exam(
     exam = exam_service.get_exam_by_id(exam_id)
     questions = exam_service.generate_exam_questions(exam)
     
-    # 转换题目格式（不包含答案）
+    # 判断是否练习模式
+    is_practice = exam.exam_type == 'practice'
+    
+    # 转换题目格式（练习模式包含答案）
     question_briefs = []
     for q in questions:
         options = None
@@ -224,7 +227,9 @@ async def start_exam(
             title=q.title,
             options=options,
             score=q.score,
-            image_url=q.image_url
+            image_url=q.image_url,
+            answer=q.answer if is_practice else None,
+            analysis=q.analysis if is_practice else None
         ))
     
     from datetime import timedelta
