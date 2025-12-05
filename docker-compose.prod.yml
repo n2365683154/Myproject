@@ -7,10 +7,10 @@ services:
     container_name: exam_mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-ExamRoot@2024}
-      MYSQL_DATABASE: exam_system
-      MYSQL_USER: exam_user
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-ExamPass@2024}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-examroot}
+      MYSQL_DATABASE: system
+      MYSQL_USER: system
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-examroot}
       TZ: Asia/Shanghai
     ports:
       - "13306:3306"
@@ -47,7 +47,7 @@ services:
     container_name: exam_backend
     restart: always
     environment:
-      - DATABASE_URL=mysql+pymysql://exam_user:${MYSQL_PASSWORD:-ExamPass@2024}@mysql:3306/exam_system?charset=utf8mb4
+      - DATABASE_URL=mysql+pymysql://system:${MYSQL_PASSWORD:-examroot}@mysql:3306/system?charset=utf8mb4
       - REDIS_URL=redis://redis:6379/0
       - SECRET_KEY=${SECRET_KEY:-your-production-secret-key-change-this}
       - DEBUG=False
