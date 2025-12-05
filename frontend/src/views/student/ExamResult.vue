@@ -119,13 +119,17 @@ const formatDuration = (seconds) => {
 // 检查是否是用户答案
 const isUserAnswer = (userAnswer, key) => {
   if (!userAnswer) return false
-  return userAnswer.includes(key)
+  // 去除逗号后检查
+  const answer = userAnswer.toUpperCase().replace(/,|，/g, '')
+  return answer.includes(key.toUpperCase())
 }
 
 // 检查是否是正确答案
 const isCorrectAnswer = (correctAnswer, key) => {
   if (!correctAnswer) return false
-  return correctAnswer.includes(key)
+  // 去除逗号后检查
+  const answer = correctAnswer.toUpperCase().replace(/,|，/g, '')
+  return answer.includes(key.toUpperCase())
 }
 
 // 获取考试记录详情

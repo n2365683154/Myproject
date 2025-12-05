@@ -370,7 +370,9 @@ const isOptionSelected = (key) => {
 // 检查是否正确选项
 const isCorrectOption = (key) => {
   if (!currentQuestion.value?.answer) return false
-  return currentQuestion.value.answer.includes(key)
+  // 去除逗号后检查是否包含该选项
+  const correctAnswer = currentQuestion.value.answer.toUpperCase().replace(/,|，/g, '')
+  return correctAnswer.includes(key.toUpperCase())
 }
 
 // 处理选项点击 (单选)
@@ -434,18 +436,25 @@ const checkAnswer = () => {
   if (!currentQuestion.value) return
   
   const qId = currentQuestion.value.id
-  const userAnswer = currentAnswer.value
-  const correctAnswer = currentQuestion.value.answer
+  const userAnswer = currentAnswer.value || ''
+  const correctAnswer = currentQuestion.value.answer || ''
+  
+  // 如果没有正确答案（非练习模式），不进行判断
+  if (!correctAnswer) {
+    console.warn('无法获取正确答案，可能不是练习模式')
+    return
+  }
   
   // 判断是否正确
   let isCorrect = false
   if (currentQuestion.value.question_type === 'multiple_choice') {
     // 多选题：去除逗号后比较字符集合
-    const userSet = new Set(userAnswer.toUpperCase().replace(/,|，/g, '').split(''))
-    const correctSet = new Set(correctAnswer.toUpperCase().replace(/,|，/g, '').split(''))
+    const userSet = new Set(userAnswer.toUpperCase().replace(/,|，/g, '').split('').filter(c => c))
+    const correctSet = new Set(correctAnswer.toUpperCase().replace(/,|，/g, '').split('').filter(c => c))
     isCorrect = userSet.size === correctSet.size && [...userSet].every(c => correctSet.has(c))
   } else {
-    isCorrect = userAnswer === correctAnswer
+    // 单选题、判断题：直接比较
+    isCorrect = userAnswer.trim().toUpperCase() === correctAnswer.trim().toUpperCase()
   }
   answeredResults[qId] = isCorrect
   showResultMap[qId] = true
