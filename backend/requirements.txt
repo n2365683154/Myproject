@@ -1,0 +1,46 @@
+# FastAPI核心
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+gunicorn==21.2.0
+python-multipart==0.0.6
+
+# 数据库
+sqlalchemy==2.0.23
+pymysql==1.1.0
+alembic==1.12.1
+
+# Redis
+redis==5.0.1
+aioredis==2.0.1
+
+# JWT认证
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# 验证码
+pillow==10.1.0
+captcha==0.5.0
+
+# 阿里云短信SDK
+alibabacloud-dysmsapi20170525==2.0.24
+alibabacloud-tea-openapi==0.3.8
+
+# Excel/Word解析
+openpyxl==3.1.2
+python-docx==1.1.0
+
+# PDF解析
+pdfplumber==0.10.3
+PyPDF2==3.0.1
+
+# OCR识别
+paddlepaddle==2.5.2
+paddleocr==2.7.0.3
+
+# 其他工具
+pydantic==2.5.2
+pydantic-settings==2.1.0
+python-dotenv==1.0.0
+httpx==0.25.2
+aiofiles==23.2.1
+loguru==0.7.2
