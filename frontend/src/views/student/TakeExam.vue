@@ -438,7 +438,15 @@ const checkAnswer = () => {
   const correctAnswer = currentQuestion.value.answer
   
   // 判断是否正确
-  const isCorrect = userAnswer === correctAnswer
+  let isCorrect = false
+  if (currentQuestion.value.question_type === 'multiple_choice') {
+    // 多选题：去除逗号后比较字符集合
+    const userSet = new Set(userAnswer.toUpperCase().replace(/,|，/g, '').split(''))
+    const correctSet = new Set(correctAnswer.toUpperCase().replace(/,|，/g, '').split(''))
+    isCorrect = userSet.size === correctSet.size && [...userSet].every(c => correctSet.has(c))
+  } else {
+    isCorrect = userAnswer === correctAnswer
+  }
   answeredResults[qId] = isCorrect
   showResultMap[qId] = true
   
