@@ -370,9 +370,9 @@ const isOptionSelected = (key) => {
 // 检查是否正确选项
 const isCorrectOption = (key) => {
   if (!currentQuestion.value?.answer) return false
-  // 去除逗号后检查是否包含该选项
-  const correctAnswer = currentQuestion.value.answer.toUpperCase().replace(/,|，/g, '')
-  return correctAnswer.includes(key.toUpperCase())
+  // 只保留字母后检查是否包含该选项
+  const correctLetters = currentQuestion.value.answer.replace(/[^A-Za-z]/g, '').toUpperCase()
+  return correctLetters.includes(key.toUpperCase())
 }
 
 // 处理选项点击 (单选)
@@ -448,10 +448,10 @@ const checkAnswer = () => {
   // 判断是否正确
   let isCorrect = false
   if (currentQuestion.value.question_type === 'multiple_choice') {
-    // 多选题：去除逗号后比较字符集合
-    const userSet = new Set(userAnswer.toUpperCase().replace(/,|，/g, '').split('').filter(c => c))
-    const correctSet = new Set(correctAnswer.toUpperCase().replace(/,|，/g, '').split('').filter(c => c))
-    isCorrect = userSet.size === correctSet.size && [...userSet].every(c => correctSet.has(c))
+    // 多选题：只保留字母，忽略逗号空格等符号
+    const userLetters = new Set(userAnswer.replace(/[^A-Za-z]/g, '').toUpperCase().split(''))
+    const correctLetters = new Set(correctAnswer.replace(/[^A-Za-z]/g, '').toUpperCase().split(''))
+    isCorrect = userLetters.size === correctLetters.size && [...userLetters].every(c => correctLetters.has(c))
   } else {
     // 单选题、判断题：直接比较
     isCorrect = userAnswer.trim().toUpperCase() === correctAnswer.trim().toUpperCase()

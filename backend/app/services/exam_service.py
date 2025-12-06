@@ -393,13 +393,13 @@ class ExamService:
             return 0, 0
         
         elif question.question_type == QuestionType.MULTIPLE_CHOICE:
-            # 多选题：完全匹配得满分，部分匹配得一半分
-            correct_set = set(correct_answer.upper().replace(",", "").replace("，", ""))
-            user_set = set(user_answer.upper().replace(",", "").replace("，", ""))
+            # 多选题：只保留字母，忽略逗号空格等符号
+            correct_letters = set(re.sub(r'[^A-Za-z]', '', correct_answer).upper())
+            user_letters = set(re.sub(r'[^A-Za-z]', '', user_answer).upper())
             
-            if correct_set == user_set:
+            if correct_letters == user_letters:
                 return 1, question.score
-            elif user_set.issubset(correct_set) and len(user_set) > 0:
+            elif user_letters.issubset(correct_letters) and len(user_letters) > 0:
                 return 2, question.score * 0.5
             return 0, 0
         

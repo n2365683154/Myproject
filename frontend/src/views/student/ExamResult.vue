@@ -119,17 +119,17 @@ const formatDuration = (seconds) => {
 // 检查是否是用户答案
 const isUserAnswer = (userAnswer, key) => {
   if (!userAnswer) return false
-  // 去除逗号后检查
-  const answer = userAnswer.toUpperCase().replace(/,|，/g, '')
-  return answer.includes(key.toUpperCase())
+  // 只保留字母后检查
+  const letters = userAnswer.replace(/[^A-Za-z]/g, '').toUpperCase()
+  return letters.includes(key.toUpperCase())
 }
 
 // 检查是否是正确答案
 const isCorrectAnswer = (correctAnswer, key) => {
   if (!correctAnswer) return false
-  // 去除逗号后检查
-  const answer = correctAnswer.toUpperCase().replace(/,|，/g, '')
-  return answer.includes(key.toUpperCase())
+  // 只保留字母后检查
+  const letters = correctAnswer.replace(/[^A-Za-z]/g, '').toUpperCase()
+  return letters.includes(key.toUpperCase())
 }
 
 // 获取考试记录详情
