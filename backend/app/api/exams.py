@@ -381,8 +381,8 @@ async def get_exam_record_detail(
                     question_type=question.question_type,
                     title=question.title,
                     options=options,
-                    answer=question.answer if exam.show_answer else "",
-                    analysis=question.analysis if exam.allow_review else None,
+                    answer=question.answer,  # 已提交的考试记录始终显示答案
+                    analysis=question.analysis,  # 已提交的考试记录始终显示解析
                     difficulty=question.difficulty,
                     score=question.score,
                     image_url=question.image_url,
