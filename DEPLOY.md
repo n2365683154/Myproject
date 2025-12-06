@@ -52,11 +52,11 @@
 
 5. 上传完成后，右键点击 zip 文件，选择 **「解压」**
 
-6. 将解压后的文件夹重命名为 `exam-system`
+6. 将解压后的文件夹重命名为 `exam_system`
 
 最终目录结构应该是：
 ```
-/www/wwwroot/exam-system/
+/www/wwwroot/exam_system/
 ├── backend/
 ├── frontend/
 ├── docker-compose.prod.yml
@@ -71,7 +71,7 @@
 2. 输入以下命令：
 ```bash
 cd /www/wwwroot
-git clone https://github.com/n2365683154/Myproject.git exam-system
+git clone https://github.com/n2365683154/Myproject.git exam_system
 ```
 
 ---
@@ -80,7 +80,7 @@ git clone https://github.com/n2365683154/Myproject.git exam-system
 
 1. 在宝塔面板，点击 **「文件」**
 
-2. 进入 `/www/wwwroot/exam-system/` 目录
+2. 进入 `/www/wwwroot/exam_system/` 目录
 
 3. 找到 `.env.production` 文件，右键点击 **「编辑」**
 
@@ -128,7 +128,7 @@ ALLOWED_ORIGINS=http://你的服务器IP:18080
 
 ```bash
 # 进入项目目录
-cd /www/wwwroot/exam-system
+cd /www/wwwroot/exam_system
 
 # 给部署脚本执行权限
 chmod +x deploy.sh
@@ -169,7 +169,7 @@ chmod +x deploy.sh
 
 ## 🔧 常用运维命令
 
-在宝塔终端中执行（先 `cd /www/wwwroot/exam-system`）：
+在宝塔终端中执行（先 `cd /www/wwwroot/exam_system`）：
 
 ```bash
 # 查看所有容器状态
@@ -218,7 +218,7 @@ docker-compose -f docker-compose.prod.yml up -d --build
 ### Q3: 如何更新代码？
 
 ```bash
-cd /www/wwwroot/exam-system
+cd /www/wwwroot/exam_system
 
 # 如果用Git，先拉取最新代码
 git pull
@@ -230,7 +230,7 @@ docker-compose -f docker-compose.prod.yml up -d --build
 ### Q4: 如何备份数据？
 
 ```bash
-cd /www/wwwroot/exam-system
+cd /www/wwwroot/exam_system
 
 # 备份数据库
 docker exec exam_mysql mysqldump -u exam_user -pExamPass@2024 exam_system > backup_$(date +%Y%m%d).sql
@@ -244,7 +244,7 @@ tar -czvf uploads_backup_$(date +%Y%m%d).tar.gz backend/uploads/
 ⚠️ **警告：这会删除所有数据！**
 
 ```bash
-cd /www/wwwroot/exam-system
+cd /www/wwwroot/exam_system
 
 # 停止并删除所有容器和数据
 docker-compose -f docker-compose.prod.yml down -v
