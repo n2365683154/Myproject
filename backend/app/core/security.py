@@ -1,12 +1,8 @@
 """
 密码安全工具
-使用 pbkdf2_sha256 替代 bcrypt 避免版本冲突问题
+使用 MD5 进行密码加密
 """
-from passlib.context import CryptContext
-
-# 使用 pbkdf2_sha256 算法，避免 bcrypt 版本兼容问题
-# 这样可以避免 bcrypt 的版本依赖和 72 字节限制问题
-pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+import hashlib
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -15,27 +11,28 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     
     Args:
         plain_password: 明文密码
-        hashed_password: 哈希后的密码
+        hashed_password: MD5哈希后的密码
         
     Returns:
         bool: 密码是否匹配
     """
     try:
-        # 尝试使用哈希验证
-        return pwd_context.verify(plain_password, hashed_password)
+        # 计算明文密码的MD5值并比较
+        plain_md5 = hashlib.md5(plain_password.encode('utf-8')).hexdigest()
+        return plain_md5 == hashed_password
     except Exception:
-        # 如果哈希验证失败，尝试明文比较（用于临时兼容）
+        # 如果验证失败，尝试明文比较（用于临时兼容）
         return plain_password == hashed_password
 
 
 def get_password_hash(password: str) -> str:
     """
-    生成密码哈希
+    生成密码MD5哈希
     
     Args:
         password: 明文密码
         
     Returns:
-        str: 哈希后的密码
+        str: MD5哈希后的密码（32位小写十六进制）
     """
-    return pwd_context.hash(password)
+    return hashlib.md5(password.encode('utf-8')).hexdigest()
