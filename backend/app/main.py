@@ -96,11 +96,10 @@ async def init_default_data():
                     db.add(role_perm)
         
         # 创建默认管理员
-        from passlib.context import CryptContext
-        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        from app.core.security import get_password_hash
         admin_user = User(
             username="admin",
-            hashed_password=pwd_context.hash("admin123"),
+            hashed_password=get_password_hash("admin123"),
             real_name="系统管理员",
             is_superuser=True,
             is_active=True

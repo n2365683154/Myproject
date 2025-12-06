@@ -6,7 +6,6 @@ import io
 import base64
 import random
 import string
-import bcrypt
 from datetime import datetime, timedelta
 from typing import Optional, Tuple
 from jose import JWTError, jwt
@@ -17,6 +16,7 @@ from app.config import settings
 from app.models.user import User, Role
 from app.schemas.auth import TokenData
 from app.redis_client import RedisClient
+from app.core import security
 
 
 class AuthService:
@@ -30,17 +30,13 @@ class AuthService:
     
     @staticmethod
     def hash_password(password: str) -> str:
-        """加密密码"""
-        salt = bcrypt.gensalt()
-        return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+        """加密密码（使用统一的security模块）"""
+        return security.get_password_hash(password)
     
     @staticmethod
     def verify_password(plain_password: str, hashed_password: str) -> bool:
-        """验证密码"""
-        try:
-            return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
-        except Exception:
-            return False
+        """验证密码（使用统一的security模块）"""
+        return security.verify_password(plain_password, hashed_password)
     
     # ==================== JWT令牌 ====================
     
