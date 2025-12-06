@@ -15,7 +15,7 @@ aioredis==2.0.1
 
 # JWT认证
 python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
+# passlib[bcrypt]==1.7.4  # 已移除，改用MD5（hashlib内置）
 
 # 验证码
 pillow==10.1.0
