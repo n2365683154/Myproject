@@ -57,6 +57,8 @@ class Exam(Base):
     # 组卷策略
     is_random = Column(Integer, default=0, comment="是否随机组卷：0固定 1随机")
     random_config = Column(Text, nullable=True, comment="随机组卷配置JSON")
+    random_question_count = Column(Integer, default=0, comment="随机抽题数量，0表示不使用统一随机数量")
+    question_type_filter = Column(String(20), default="all", comment="题型过滤: all/single/multiple")
     
     # 时间限制
     start_time = Column(DateTime, nullable=True, comment="开始时间")
@@ -74,6 +76,7 @@ class Exam(Base):
     # 关联关系
     questions = relationship("ExamQuestion", back_populates="exam")
     records = relationship("ExamRecord", back_populates="exam")
+    banks = relationship("ExamQuestionBank", back_populates="exam")
     
     __table_args__ = (
         Index("idx_exam_type", "exam_type"),
@@ -110,6 +113,34 @@ class ExamQuestion(Base):
     __table_args__ = (
         Index("idx_exam_question", "exam_id", "question_id"),
         {"comment": "考试题目关联表"}
+    )
+
+
+class ExamQuestionBank(Base):
+    """考试与题库关联表"""
+    __tablename__ = "exam_question_banks"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    exam_id = Column(
+        Integer,
+        ForeignKey("exams.id", ondelete="CASCADE"),
+        nullable=False,
+        comment="考试ID"
+    )
+    bank_id = Column(
+        Integer,
+        ForeignKey("question_banks.id", ondelete="CASCADE"),
+        nullable=False,
+        comment="题库ID"
+    )
+    created_at = Column(DateTime, default=datetime.now, comment="创建时间")
+    
+    # 关联关系
+    exam = relationship("Exam", back_populates="banks")
+    
+    __table_args__ = (
+        Index("idx_exam_bank", "exam_id", "bank_id"),
+        {"comment": "考试与题库关联表"}
     )
 
 

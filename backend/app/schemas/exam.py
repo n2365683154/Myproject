@@ -17,7 +17,7 @@ class ExamBase(BaseModel):
     exam_type: ExamType = Field(ExamType.MOCK, description="考试类型")
     total_score: int = Field(100, ge=1, description="总分")
     pass_score: int = Field(60, ge=0, description="及格分数")
-    duration: int = Field(120, ge=1, description="考试时长(分钟)")
+    duration: int = Field(120, ge=0, description="考试时长(分钟)，0表示不限时")
 
 
 class ExamCreate(ExamBase):
@@ -25,6 +25,9 @@ class ExamCreate(ExamBase):
     is_random: int = Field(0, description="是否随机组卷")
     random_config: Optional[Dict[str, Any]] = Field(None, description="随机组卷配置")
     question_ids: Optional[List[int]] = Field(default=[], description="题目ID列表(固定组卷)")
+    random_question_count: int = Field(0, ge=0, description="随机抽题数量，0表示不使用统一随机数量")
+    question_type_filter: str = Field("all", description="题型过滤: all/single/multiple")
+    bank_ids: List[int] = Field(default=[], description="题库ID列表，可多选")
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
     allow_review: int = Field(1, description="是否允许查看解析")
@@ -40,10 +43,13 @@ class ExamUpdate(BaseModel):
     status: Optional[ExamStatus] = None
     total_score: Optional[int] = Field(None, ge=1)
     pass_score: Optional[int] = Field(None, ge=0)
-    duration: Optional[int] = Field(None, ge=1)
+    duration: Optional[int] = Field(None, ge=0)
     is_random: Optional[int] = None
     random_config: Optional[Dict[str, Any]] = None
     question_ids: Optional[List[int]] = None
+    random_question_count: Optional[int] = Field(None, ge=0)
+    question_type_filter: Optional[str] = None
+    bank_ids: Optional[List[int]] = None
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
     allow_review: Optional[int] = None
@@ -57,6 +63,8 @@ class ExamResponse(ExamBase):
     status: ExamStatus
     question_count: int
     is_random: int
+    random_question_count: int
+    question_type_filter: str
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
     allow_review: int

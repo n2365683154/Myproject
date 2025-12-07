@@ -44,10 +44,30 @@
           </el-col>
           <el-col :span="8">
             <el-form-item label="时长(分钟)" prop="duration">
-              <el-input-number v-model="form.duration" :min="1" :max="600" />
+              <el-input-number v-model="form.duration" :min="0" :max="600" />
+              <span class="tips">0 表示不限时</span>
             </el-form-item>
           </el-col>
         </el-row>
+        
+        <!-- 题库多选（用于随机抽题的题目范围） -->
+        <el-form-item label="题库选择">
+          <el-select
+            v-model="form.bank_ids"
+            multiple
+            collapse-tags
+            placeholder="请选择一个或多个题库"
+            style="width: 400px;"
+          >
+            <el-option
+              v-for="bank in bankList"
+              :key="bank.id"
+              :label="`${bank.name} (${bank.question_count}题)`"
+              :value="bank.id"
+            />
+          </el-select>
+          <span class="tips" style="margin-left: 8px;">随机抽题时将从这些题库中抽题</span>
+        </el-form-item>
         
         <el-form-item label="组卷方式">
           <el-radio-group v-model="form.is_random">
@@ -104,6 +124,25 @@
         <!-- 随机组卷配置 -->
         <el-form-item label="随机配置" v-if="form.is_random === 1">
           <div class="random-config">
+            <div class="config-row">
+              <span class="config-label">统一随机抽题：</span>
+              <el-input-number
+                v-model="form.random_question_count"
+                :min="0"
+                :max="500"
+                :step="10"
+                style="margin-right: 10px;"
+              />
+              <span class="tips">设置为 100 表示每次随机抽取 100 题，0 表示按下方配置分段抽题</span>
+            </div>
+            <div class="config-row" style="margin-top: 10px;">
+              <span class="config-label">题型限制：</span>
+              <el-select v-model="form.question_type_filter" placeholder="题型过滤" style="width: 200px;">
+                <el-option label="全部题型" value="all" />
+                <el-option label="仅单选题" value="single" />
+                <el-option label="仅多选题" value="multiple" />
+              </el-select>
+            </div>
             <div 
               v-for="(config, index) in randomConfigs" 
               :key="index"
@@ -266,7 +305,10 @@ const form = reactive({
   pass_score: 60,
   duration: 120,
   is_random: 0,
+  random_question_count: 0,
+  question_type_filter: 'all',
   question_ids: [],
+  bank_ids: [],
   start_time: null,
   end_time: null,
   allow_review: 1,
@@ -437,6 +479,8 @@ const fetchExam = async () => {
       pass_score: data.pass_score,
       duration: data.duration,
       is_random: data.is_random,
+      random_question_count: data.random_question_count || 0,
+      question_type_filter: data.question_type_filter || 'all',
       start_time: data.start_time,
       end_time: data.end_time,
       allow_review: data.allow_review,

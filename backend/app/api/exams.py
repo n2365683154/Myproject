@@ -106,6 +106,8 @@ async def get_exam(
         duration=exam.duration,
         question_count=exam.question_count,
         is_random=exam.is_random,
+        random_question_count=exam.random_question_count,
+        question_type_filter=exam.question_type_filter,
         start_time=exam.start_time,
         end_time=exam.end_time,
         allow_review=exam.allow_review,
@@ -114,7 +116,7 @@ async def get_exam(
         creator_id=exam.creator_id,
         created_at=exam.created_at,
         updated_at=exam.updated_at,
-        questions=question_briefs
+        questions=question_briefs,
     )
 
 

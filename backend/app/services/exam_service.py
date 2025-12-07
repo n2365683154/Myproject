@@ -12,7 +12,8 @@ from sqlalchemy import func, and_
 from app.models.question import Question, QuestionType
 from app.models.exam import (
     Exam, ExamQuestion, ExamRecord, ExamAnswer,
-    WrongQuestion, StudyRecord, ExamType, ExamStatus, RecordStatus
+    WrongQuestion, StudyRecord, ExamType, ExamStatus, RecordStatus,
+    ExamQuestionBank,
 )
 from app.schemas.exam import ExamCreate, ExamUpdate, RandomExamConfig
 from app.services.question_service import QuestionService
@@ -82,17 +83,25 @@ class ExamService:
             duration=exam_data.duration,
             is_random=exam_data.is_random,
             random_config=random_config_json,
+            random_question_count=exam_data.random_question_count,
+            question_type_filter=exam_data.question_type_filter,
             start_time=exam_data.start_time,
             end_time=exam_data.end_time,
             allow_review=exam_data.allow_review,
             show_answer=exam_data.show_answer,
             max_attempts=exam_data.max_attempts,
-            creator_id=creator_id
+            creator_id=creator_id,
         )
         
         self.db.add(exam)
         self.db.flush()
         
+        # 保存考试与题库的关联
+        if exam_data.bank_ids:
+            for bank_id in set(exam_data.bank_ids):
+                link = ExamQuestionBank(exam_id=exam.id, bank_id=bank_id)
+                self.db.add(link)
+
         # 固定组卷：添加指定题目
         if not exam_data.is_random and exam_data.question_ids:
             for i, q_id in enumerate(exam_data.question_ids):
@@ -106,7 +115,7 @@ class ExamService:
                     )
                     self.db.add(eq)
             exam.question_count = len(exam_data.question_ids)
-        
+
         self.db.commit()
         self.db.refresh(exam)
         
@@ -118,7 +127,7 @@ class ExamService:
         if not exam:
             return None
         
-        update_data = exam_data.model_dump(exclude_unset=True, exclude={"question_ids"})
+        update_data = exam_data.model_dump(exclude_unset=True, exclude={"question_ids", "bank_ids"})
         
         # 处理随机组卷配置
         if "random_config" in update_data and update_data["random_config"]:
@@ -191,6 +200,31 @@ class ExamService:
         生成考试题目
         支持固定组卷和随机组卷
         """
+        # 优先使用统一随机抽题配置（基于 random_question_count / question_type_filter / 多题库）
+        if exam.random_question_count and exam.random_question_count > 0:
+            query = self.db.query(Question).filter(Question.is_active == 1)
+
+            # 按题库过滤（多题库）
+            if getattr(exam, "banks", None):
+                bank_ids = [link.bank_id for link in exam.banks]
+                if bank_ids:
+                    query = query.filter(Question.bank_id.in_(bank_ids))
+
+            # 按题型过滤
+            if exam.question_type_filter == "single":
+                query = query.filter(Question.question_type == QuestionType.SINGLE_CHOICE)
+            elif exam.question_type_filter == "multiple":
+                query = query.filter(Question.question_type == QuestionType.MULTIPLE_CHOICE)
+
+            # 随机抽题（MySQL 使用 RAND）
+            questions = (
+                query
+                .order_by(func.rand())
+                .limit(exam.random_question_count)
+                .all()
+            )
+            return questions
+
         if not exam.is_random:
             # 固定组卷：返回预设题目
             exam_questions = self.db.query(ExamQuestion).filter(

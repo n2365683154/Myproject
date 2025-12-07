@@ -46,28 +46,25 @@ async def lifespan(app: FastAPI):
 async def init_default_data():
     """初始化默认数据（角色、权限等）- 使用分布式锁避免并发冲突"""
     import asyncio
+    from sqlalchemy import func
     from app.database import SessionLocal
     from app.models.user import User, Role, Permission, UserRole, RolePermission
     from app.models.permission import DEFAULT_ROLE_PERMISSIONS, PERMISSION_DESCRIPTIONS, PermissionCode
     from app.core.security import get_password_hash
     
-    # 使用Redis分布式锁，确保只有一个worker初始化
+    # 使用简单的Redis锁键，减少多worker并发初始化的概率
     lock_key = "init_default_data_lock"
     try:
-        # 尝试获取锁，等待最多10秒
-        for i in range(10):
-            if await redis_client.set(lock_key, "1", expire=60, nx=True):
-                break
-            await asyncio.sleep(1)
-        else:
-            logger.info("其他worker正在初始化数据，跳过...")
-            return
+        # 写入一个短期锁标记（不使用 nx 参数，兼容当前 RedisClient 实现）
+        await redis_client.set(lock_key, "1", expire=60)
         
         db = SessionLocal()
         
         try:
-            # 双重检查：是否已初始化
-            if db.query(Role).count() > 0:
+            # 双重检查：是否已初始化（只要权限或角色已有数据，就认为已初始化）
+            perm_count = db.query(func.count(Permission.id)).scalar() or 0
+            role_count = db.query(func.count(Role.id)).scalar() or 0
+            if perm_count > 0 or role_count > 0:
                 logger.info("默认数据已存在，跳过初始化")
                 return
             
@@ -139,7 +136,7 @@ async def init_default_data():
             db.close()
     
     finally:
-        # 释放锁
+        # 尝试删除锁键（如果不存在也不会报错）
         await redis_client.delete(lock_key)
 
 
